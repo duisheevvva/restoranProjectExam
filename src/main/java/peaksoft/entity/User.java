@@ -1,8 +1,6 @@
 package peaksoft.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -25,18 +23,11 @@ public class User implements UserDetails {
     @GeneratedValue(generator = "user_gen", strategy = GenerationType.SEQUENCE)
     @SequenceGenerator(name = "user_gen", sequenceName = "user_seq", allocationSize = 1)
     private Long id;
-    @NotEmpty(message = "fill in the field")
     private String firstName;
-    @NotEmpty(message = "fill in the field")
     private String lastName;
     private LocalDate dateOfBirth;
-    @NotEmpty(message = "fill in the field")
-    @Column(unique = true)
     private String email;
-    @NotEmpty(message = "fill in the field")
     private String password;
-    @NotEmpty(message = "fill in the field")
-    @Pattern(regexp = "\\+996\\d{9}", message = "wrong format")
     private String phoneNumber;
     @Enumerated(EnumType.STRING)
     private Role role;

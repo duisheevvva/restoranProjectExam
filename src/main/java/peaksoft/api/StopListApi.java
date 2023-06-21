@@ -18,13 +18,13 @@ public class StopListApi {
     @GetMapping
 //    @PreAuthorize("hasAnyRole('ADMIN')")
     public PaginationResponseStopList findAll(int pageSize, int currentPage) {
-        return stopListService.findAll(pageSize,currentPage);
+        return stopListService.findAll(pageSize, currentPage);
     }
 
-    @PostMapping
+    @PostMapping("/{menuId}")
 //    @PreAuthorize("hasAuthority('ADMIN')")
-    public SimpleResponse saveStopList(@RequestBody StopListRequest stopListRequest) {
-        return stopListService.saveStopList(stopListRequest);
+    public StopListResponse saveStopList(@PathVariable Long menuId, @RequestBody StopListRequest stopListRequest) {
+        return stopListService.saveStopList(menuId, stopListRequest);
     }
 
     @GetMapping("/{id}")
@@ -35,9 +35,9 @@ public class StopListApi {
 
     @PutMapping("/{id}")
 //    @PreAuthorize("hasAnyAuthority('ADMIN')")
-    public  SimpleResponse updateStopListById(@PathVariable Long id ,
-                                              @RequestBody StopListRequest stopListRequest){
-        return stopListService.update(id,stopListRequest);
+    public StopListResponse updateStopListById(@PathVariable Long id,
+                                               @RequestBody StopListRequest stopListRequest) {
+        return stopListService.update(id, stopListRequest);
     }
 
     @DeleteMapping("/{id}")

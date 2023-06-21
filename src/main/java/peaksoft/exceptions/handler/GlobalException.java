@@ -72,4 +72,14 @@ public class GlobalException {
                 .exceptionClassName(e.getClass().getSimpleName())
                 .build();
     }
+
+//    @ExceptionHandler(ArithmeticException.class)
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    public ExceptionResponse handleArithmeticException(ArithmeticException e) {
+//        return new ExceptionResponse(
+//                HttpStatus.CONFLICT,
+//                e.getClass().getSimpleName(),
+//                e.getMessage()
+//        );
+//    }
 }

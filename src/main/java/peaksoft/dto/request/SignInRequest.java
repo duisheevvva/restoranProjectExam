@@ -14,6 +14,5 @@ public class SignInRequest {
     @NotEmpty(message = "fill in the field")
     private String email;
     @NotEmpty(message = "fill in the field")
-    @Password
     private String password;
 }

@@ -6,11 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import peaksoft.dto.response.StopListResponse;
-import peaksoft.dto.response.pagination.PaginationResponseUser;
 import peaksoft.entity.StopList;
 
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
+
 
 @Repository
 public interface StopListRepository extends JpaRepository<StopList,Long> {
@@ -19,4 +18,5 @@ public interface StopListRepository extends JpaRepository<StopList,Long> {
 
     @Query("select count (*) from StopList s where s.date = :date and UPPER( s.menuItem.name) like upper(:menuItemName)")
     Integer count (LocalDate date, String menuItemName);
+
 }

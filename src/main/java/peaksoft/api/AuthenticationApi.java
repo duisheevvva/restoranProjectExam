@@ -21,7 +21,7 @@ public class AuthenticationApi {
     }
 
     @PostMapping("/signIn")
-    public AuthenticationResponse signIn(@RequestBody @Valid SignInRequest request) {
+    public AuthenticationResponse signIn(@RequestBody   SignInRequest request) {
         return authenticationService.signIn(request);
     }
 }

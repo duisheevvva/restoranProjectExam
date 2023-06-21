@@ -2,8 +2,8 @@ package peaksoft.service.serviceImpl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import peaksoft.config.JwtService;
 import peaksoft.dto.request.ChequeRequest;
 import peaksoft.dto.request.RestaurantRequestOfDay;
 import peaksoft.dto.request.WaiterRequest;
@@ -21,6 +21,7 @@ import peaksoft.service.ChequeService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 @Service
@@ -31,7 +32,6 @@ public class ChequeServiceImpl implements ChequeService {
     private final MenuItemRepository menuItemRepository;
     private final StopListRepository stopListRepository;
     private final UserRepository userRepository;
-    private final JwtService jwtService;
     private final RestaurantRepository restaurantRepository;
 
 
@@ -108,14 +108,14 @@ public class ChequeServiceImpl implements ChequeService {
                 num = num + menuItem1.getPrice();
                 count++;
             }
-            int totalPrice = num + ((num / 100) * getRestaurant().getService());
+//            int totalPrice = num + ((num / 100) * getRestaurant().getService());
             chequeResponses.add(new ChequeResponse(
                     cheque.getId(),
-                    cheque.getUser().getFirstName().concat(" ").concat(cheque.getUser().getLastName()),
+                    "sdfghj",
                     menuItemResponses,
                     (num / count),
                     getRestaurant().getService(),
-                    totalPrice,
+                    num,
                     cheque.getCreatedAt()
             ));
 
@@ -128,7 +128,7 @@ public class ChequeServiceImpl implements ChequeService {
         User user = userRepository.findById(request.getWaiterId())
                 .orElseThrow(() ->
                         new NotFoundException(String.format("User with email :%s already exists", request.getWaiterId())));
-        List<Cheque> chequeList = chequeRepository.findAll().stream().filter(cheque -> cheque.getUser().getId() == request.getWaiterId()).toList();
+        List<Cheque> chequeList = chequeRepository.findAll().stream().filter(cheque -> Objects.equals(cheque.getUser().getId(), request.getWaiterId())).toList();
         List<Cheque> cheques = chequeList.stream().filter(cheque -> cheque.getCreatedAt().equals(request.getDay())).toList();
         List<ChequeResponse> cheques1 = cheques(cheques);
         WaiterResponseOfDay waiterResponseOfDay = new WaiterResponseOfDay();
@@ -209,8 +209,16 @@ public class ChequeServiceImpl implements ChequeService {
 
 
     @Override
-    public String delete(Long id) {
-        return null;
+    public SimpleResponse delete(Long id) {
+        if (!stopListRepository.existsById(id)) {
+            throw new NotFoundException("Cheque with id : " + id + "is not found");
+        }
+        stopListRepository.deleteById(id);
+        return SimpleResponse
+                .builder()
+                .httpStatus(HttpStatus.OK)
+                .message(String.format("Cheque with id : %s is deleted!", id))
+                .build();
     }
 
     @Override

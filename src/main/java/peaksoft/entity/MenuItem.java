@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -26,11 +27,11 @@ public class MenuItem {
     private String name;
     @NotEmpty(message = "fill in the field")
     private String image;
-    @NotEmpty(message = "fill in the field")
     private int price;
     @NotEmpty(message = "fill in the field")
     private String description;
     private boolean isVegetarian;
+    private LocalDate isBlocked;
 
 
     @ManyToOne(cascade = {CascadeType.DETACH,

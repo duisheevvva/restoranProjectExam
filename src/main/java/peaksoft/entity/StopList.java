@@ -2,6 +2,7 @@ package peaksoft.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class StopList {
     @Id
     @GeneratedValue(generator = "stopList_gen",
@@ -33,10 +35,8 @@ public class StopList {
             CascadeType.REFRESH,CascadeType.REMOVE}, mappedBy = "stopList")
     private MenuItem menuItem;
 
-    public StopList(Long id, String reason, LocalDate date, MenuItem menuItem) {
-        this.id = id;
+    public StopList(String reason, LocalDate date) {
         this.reason = reason;
         this.date = date;
-        this.menuItem = menuItem;
     }
 }

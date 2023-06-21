@@ -90,7 +90,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email("admin@gmail.com")
                 .password(passwordEncoder.encode("admin"))
                 .role(Role.ADMIN)
-                .phoneNumber("+996700102334")
+                .phoneNumber("+996705443322")
                 .experience(5)
                 .build();
 

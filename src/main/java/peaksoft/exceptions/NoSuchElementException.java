@@ -10,4 +10,6 @@ public class NoSuchElementException extends RuntimeException{
         super(String.format("Entity %s with id %d not found", clazz.getSimpleName(), id));
     }
 
+    public NoSuchElementException() {
+    }
 }

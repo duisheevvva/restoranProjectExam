@@ -1,13 +1,11 @@
 package peaksoft.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 
@@ -24,9 +22,8 @@ public class Cheque {
             sequenceName = "cheque_seq",
             allocationSize = 1)
     private Long id;
-    @NotEmpty(message = "fill in the field")
+
     private int priceAverage;
-    @NotEmpty(message = "fill in the field")
     private LocalDate createdAt;
     private int total;
     private int grandTotal;
