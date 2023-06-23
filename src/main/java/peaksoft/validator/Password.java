@@ -13,7 +13,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
 public @interface Password {
-    String message() default "Invalid phone number";
+    String message() ;
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

@@ -19,7 +19,7 @@ public class SignUpRequest {
     private String lastName;
 //    @NotEmpty(message = "fill in the field")
     private String email;
-    @Password
+    @Password(message = "incorrect password up")
 //    @NotEmpty(message = "fill in the field")
     private String password;
     @Enumerated(EnumType.STRING)

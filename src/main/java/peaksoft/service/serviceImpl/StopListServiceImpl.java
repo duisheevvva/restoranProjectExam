@@ -73,25 +73,7 @@ public class StopListServiceImpl implements StopListService {
         }
     }
 
-//        if (stopListRepository.count(stopListRequest.getDate(), stopListRequest.getMenuItemName()) > 0) {
-//            throw new AlreadyExistException("already on this date there is such a menu item");
-//        }
-//        StopList stopList = new StopList();
-//        stopList.setReason(stopListRequest.getReason());
-//        stopList.setDate(stopListRequest.getDate());
-//        MenuItem menuItem = menuItemRepository.findByName(stopListRequest.getMenuItemName())
-//                .orElseThrow(
-//                        () -> new NotFoundException("MenuItem with name: " + stopListRequest.getMenuItemName() + "is not found!"));
-//        menuItem.setStopList(stopList);
-//        stopList.setMenuItem(menuItem);
-//        stopListRepository.save(stopList);
-//
-//        return SimpleResponse
-//                .builder()
-//                .httpStatus(HttpStatus.OK)
-//                .message(String.format("StopList with MenuItemName : %s " + "successfully saved", stopListRequest.getMenuItemName()))
-//                .build();
-//    }
+
 
     @Override
     public StopList findById(Long id) {
@@ -100,34 +82,19 @@ public class StopListServiceImpl implements StopListService {
     }
 
     @Override
-    public StopListResponse update(Long id, StopListRequest stopListRequest) {
+    public SimpleResponse update(Long id, StopListRequest stopListRequest) {
 
-        if (id != null) {
-            StopList stopList = stopListRepository.findById(id).orElseThrow(() ->
-                    new NotFoundException(String.format("StopList with id :%s already exists", id)));
-            stopList.setReason(stopListRequest.getReason());
-            stopList.setDate(stopListRequest.getDate());
-            stopListRepository.save(stopList);
-            return new StopListResponse(
-                    stopList.getId(),
-                    stopList.getReason(),
-                    stopList.getMenuItem().getName(),
-                    stopList.getDate()
-
-            );
-        }
-        return null;
-//        StopList stopList = stopListRepository.findById(id)
-//                .orElseThrow(() -> new NotFoundException("StopList with id : " + id + "is not found!"));
-//        stopList.setReason(stopListRequest.getReason());
-//        stopList.setDate(stopListRequest.getDate());
-//        stopListRepository.save(stopList);
-//        return SimpleResponse
-//                .builder()
-//                .httpStatus(HttpStatus.OK)
-//                .message(String.format("StopList with MenuItemName : %s " + "successfully update",
-//                        stopListRequest.))
-//                .build();
+        StopList stopList = stopListRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("StopList with id : " + id + "is not found!"));
+        stopList.setReason(stopListRequest.getReason());
+        stopList.setDate(stopListRequest.getDate());
+        stopListRepository.save(stopList);
+        return SimpleResponse
+                .builder()
+                .httpStatus(HttpStatus.OK)
+                .message(String.format("StopList with MenuItemName : %s " + "successfully update",
+                        stopListRequest.getMenuItemName()))
+                .build();
     }
 
     @Override

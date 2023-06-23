@@ -11,6 +11,6 @@ public interface StopListService {
     PaginationResponseStopList findAll(int pageSize, int currentPage);
     StopListResponse saveStopList(Long menuId, StopListRequest request);
     StopList findById(Long id);
-    StopListResponse update(Long id,StopListRequest stopListRequest);
+    SimpleResponse update(Long id,StopListRequest stopListRequest);
     SimpleResponse deleteById(Long id);
 }

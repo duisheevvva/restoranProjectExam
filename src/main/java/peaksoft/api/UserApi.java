@@ -1,5 +1,6 @@
 package peaksoft.api;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,32 +15,45 @@ import peaksoft.service.UserService;
 @RequiredArgsConstructor
 public class UserApi {
 
-    private final UserService userService;
+    private final UserService service;
 
-    @PreAuthorize("hasAnyAuthority('ADMIN','CHEF','WAITER')")
+    @PreAuthorize("hasAnyAuthority('ADMIN','WAITER','CHEF')")
     @GetMapping
-    PaginationResponseUser getAllUsers(@RequestParam int pageSize, int currentPage){
-        return userService.findAll(currentPage,pageSize);
+    PaginationResponseUser getAllUsers(@RequestParam int pageSize,int currentPage){
+        return service.getAllUsers(currentPage,pageSize);
     }
 
-    @PostMapping
+    @PostMapping("/register")
+    public SimpleResponse registerUser(@RequestBody @Valid UserRequest userRequest){
+        return service.register(userRequest);
+    }
+
     @PreAuthorize("hasAuthority('ADMIN')")
-    public SimpleResponse saveUser(@RequestBody UserRequest userRequest) {
-        return userService.saveUser(userRequest);
+    @PutMapping("/acceptOrReject")
+    public  SimpleResponse AcceptOrReject(@RequestParam Long userId,@RequestParam Long restaurantId, @RequestParam String word){
+        return service.acceptUser(userId, restaurantId, word);
+    }
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/update/{id}")
+    public SimpleResponse updateUser(@PathVariable Long id,@RequestBody UserRequest userRequest){
+        return service.updateUserById(id, userRequest);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','WAITER','CHEF')")
     @GetMapping("/{id}")
-    public UserResponse findById(@PathVariable Long id) {
-        return userService.findById(id);
+    public UserResponse getUserById(@PathVariable Long id){
+        return service.getUserById(id);
     }
 
-    @PutMapping("/{id}")
-    public SimpleResponse updateUserById(@PathVariable Long id, @RequestBody UserRequest userRequest) {
-        return userService.update(id, userRequest);
-    }
-
+    @PreAuthorize("hasAnyAuthority('ADMIN','WAITER','CHEF')")
     @DeleteMapping("/{id}")
-    public SimpleResponse deleteUserById(@PathVariable Long id) {
-        return userService.deleteById(id);
+    public SimpleResponse deleteUserById(@PathVariable Long id){
+        return service.deleteUserById(id);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PostMapping("/saveByAdmin")
+    public SimpleResponse saveUserByAdmin(@RequestParam Long id,@RequestBody @Valid UserRequest userRequest){
+        return service.saveUser(id,userRequest);
     }
 }

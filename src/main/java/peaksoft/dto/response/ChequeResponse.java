@@ -1,9 +1,10 @@
 package peaksoft.dto.response;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import peaksoft.entity.MenuItem;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,20 +14,18 @@ import java.util.List;
 @NoArgsConstructor
 public class ChequeResponse {
     private Long id;
-    private String fullName;
-    private List<MenuItemResponse>itemResponseList;
-    private int avaPrice;
-    private int services;
+    private String waiterFullName;
+    private List<MenuItem> items;
+    private int priceAverage;
+    private int service;
     private int grandTotal;
-    private LocalDate date;
 @Builder
-    public ChequeResponse(Long id, String fullName, List<MenuItemResponse> itemResponseList, int avaPrice, int services, int grandTotal, LocalDate date) {
+    public ChequeResponse(Long id, String waiterFullName, List<MenuItem> items, int priceAverage, int service, int grandTotal) {
         this.id = id;
-        this.fullName = fullName;
-        this.itemResponseList = itemResponseList;
-        this.avaPrice = avaPrice;
-        this.services = services;
+        this.waiterFullName = waiterFullName;
+        this.items = items;
+        this.priceAverage = priceAverage;
+        this.service = service;
         this.grandTotal = grandTotal;
-        this.date = date;
     }
 }

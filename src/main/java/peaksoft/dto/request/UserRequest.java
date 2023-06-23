@@ -26,14 +26,12 @@ public class UserRequest {
     @NotEmpty(message = "fill in the field")
     private String email;
     @NotEmpty(message = "fill in the field")
-    @Password
+    @Password(message = "Incorrect password")
     private String password;
-    @NotEmpty(message = "fill in the field")
+
     private String phoneNumber;
     private Role role;
     @NotNull
     private int experience;
-    @NotEmpty(message = "fill in the field")
-    private Long restaurantId;
 
 }

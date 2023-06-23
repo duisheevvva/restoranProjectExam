@@ -53,7 +53,7 @@ public class MenuItemApi {
     }
 
     @GetMapping("/sort")
-//    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public List<MenuItemResponse> findAllMenuItemSortedByPriceAscAndDesc(@RequestParam String sort) {
         return menuItemService.findAllMenuItemSortedByPriceAscAndDesc(sort);
     }

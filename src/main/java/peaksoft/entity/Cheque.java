@@ -22,10 +22,8 @@ public class Cheque {
             sequenceName = "cheque_seq",
             allocationSize = 1)
     private Long id;
-
     private int priceAverage;
     private LocalDate createdAt;
-    private int total;
     private int grandTotal;
 
 
@@ -41,11 +39,10 @@ public class Cheque {
     private List<MenuItem> menuItems;
 
 
-    public Cheque(Long id, int priceAverage, LocalDate createdAt, int total, int grandTotal) {
+    public Cheque(Long id, int priceAverage, LocalDate createdAt, int grandTotal) {
         this.id = id;
         this.priceAverage = priceAverage;
         this.createdAt = createdAt;
-        this.total = total;
         this.grandTotal = grandTotal;
     }
 

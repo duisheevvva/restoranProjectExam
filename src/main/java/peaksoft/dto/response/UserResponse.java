@@ -1,12 +1,11 @@
 package peaksoft.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import peaksoft.enums.Role;
 
 import java.time.LocalDate;
-import java.time.ZonedDateTime;
+
 
 @Data
 @Builder

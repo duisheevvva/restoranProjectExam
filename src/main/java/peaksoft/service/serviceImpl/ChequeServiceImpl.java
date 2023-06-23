@@ -3,248 +3,168 @@ package peaksoft.service.serviceImpl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import peaksoft.dto.request.ChequeRequest;
-import peaksoft.dto.request.RestaurantRequestOfDay;
-import peaksoft.dto.request.WaiterRequest;
-import peaksoft.dto.response.*;
+import peaksoft.dto.response.AverageSumResponse;
+import peaksoft.dto.response.ChequeTotalWaiterResponse;
+import peaksoft.dto.response.SimpleResponse;
+import peaksoft.dto.response.pagination.PaginationResponseCheque;
 import peaksoft.entity.Cheque;
 import peaksoft.entity.MenuItem;
-import peaksoft.entity.Restaurant;
 import peaksoft.entity.User;
 import peaksoft.enums.Role;
-import peaksoft.exceptions.BadRequestException;
 import peaksoft.exceptions.NotFoundException;
-import peaksoft.repository.*;
+import peaksoft.repository.ChequeRepository;
+import peaksoft.repository.MenuItemRepository;
+import peaksoft.repository.UserRepository;
 import peaksoft.service.ChequeService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-
+import java.util.Optional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class ChequeServiceImpl implements ChequeService {
-    private final ChequeRepository chequeRepository;
-    private final MenuItemRepository menuItemRepository;
-    private final StopListRepository stopListRepository;
+    private final ChequeRepository repository;
     private final UserRepository userRepository;
-    private final RestaurantRepository restaurantRepository;
+    private final MenuItemRepository menuItemRepository;
 
 
-    public Restaurant getRestaurant() {
-        Restaurant restaurant1 = null;
-        for (Restaurant restaurant : restaurantRepository.findAll()) {
-            restaurant1 = restaurant;
-        }
-        return restaurant1;
+    private User getAuthentication() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String name = authentication.getName();
+        User user = userRepository.getUserByEmail(name)
+                .orElseThrow(() -> new NotFoundException("User with email: " + name + " us bit found!"));
+        return user;
     }
 
     @Override
-    public ChequeResponse save(ChequeRequest request) {
-        User user = userRepository.findById(request.getWaiterId())
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("Author with email :%s already exists", request.getWaiterId())));
-        if (user.getRole().equals(Role.WAITER)) {
-            Cheque cheque = new Cheque();
-            List<MenuItemResponse> menuItemResponses = new ArrayList<>();
-            List<MenuItem> menuItems = new ArrayList<>();
-            for (String s : request.getMenuItemNames()) {
-                MenuItem byName = menuItemRepository.findByName(s);
-                MenuItemResponse byNameResponse = menuItemRepository.findByNameResponse(s);
-                menuItemResponses.add(byNameResponse);
-                menuItems.add(byName);
-            }
-            cheque.setUser(user);
-            cheque.setMenuItems(menuItems);
-            cheque.setCreatedAt(LocalDate.now());
-            int num = 0;
-            int count = 0;
-            for (MenuItemResponse menuItem : menuItemResponses) {
-                System.out.println(menuItem.getPrice()+"bnm,.");
-                num = num + menuItem.getPrice();
-                count++;
-                System.out.println(count);
-            }
-
-            int totalPrice = num + ((num / 100) * getRestaurant().getService());
-            cheque.setPriceAverage(num / count);
-            cheque.setGrandTotal(num);
-            cheque.setGrandTotal(totalPrice);
-            chequeRepository.save(cheque);
-            return new ChequeResponse(
-                    cheque.getId(),
-                    cheque.getUser().getFirstName().concat(" ").concat(cheque.getUser().getLastName()),
-                    menuItemResponses,
-                    num,
-                    getRestaurant().getService(),
-                    totalPrice,
-                    cheque.getCreatedAt()
-            );
-        }
-        throw  new BadRequestException("user id "+request.getWaiterId()+ " no waiter");
-    }
-
-    public List<ChequeResponse> cheques  (List<Cheque> cheques){
-        List<ChequeResponse> chequeResponses = new ArrayList<>();
-        for (Cheque cheque : cheques) {
-            List<MenuItemResponse> menuItemResponses = new ArrayList<>();
-            for (MenuItem menuItem : cheque.getMenuItems()) {
-                menuItemResponses.add(new MenuItemResponse(
-                        menuItem.getId(),
-                        menuItem.getName(),
-                        menuItem.getImage(),
-                        menuItem.getPrice(),
-                        menuItem.getDescription(),
-                        menuItem.isVegetarian()
-                ));
-            }
-            int num = 0;
-            int count = 0;
-            for (MenuItemResponse menuItem1 : menuItemResponses) {
-                num = num + menuItem1.getPrice();
-                count++;
-            }
-//            int totalPrice = num + ((num / 100) * getRestaurant().getService());
-            chequeResponses.add(new ChequeResponse(
-                    cheque.getId(),
-                    "sdfghj",
-                    menuItemResponses,
-                    (num / count),
-                    getRestaurant().getService(),
-                    num,
-                    cheque.getCreatedAt()
-            ));
-
-        }
-        return chequeResponses;
+    public PaginationResponseCheque getAllCheques() {
+        return null;
     }
 
     @Override
-    public WaiterResponseOfDay totalPriceWalter(WaiterRequest request) {
-        User user = userRepository.findById(request.getWaiterId())
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("User with email :%s already exists", request.getWaiterId())));
-        List<Cheque> chequeList = chequeRepository.findAll().stream().filter(cheque -> Objects.equals(cheque.getUser().getId(), request.getWaiterId())).toList();
-        List<Cheque> cheques = chequeList.stream().filter(cheque -> cheque.getCreatedAt().equals(request.getDay())).toList();
-        List<ChequeResponse> cheques1 = cheques(cheques);
-        WaiterResponseOfDay waiterResponseOfDay = new WaiterResponseOfDay();
-        waiterResponseOfDay.setFirstName(user.getFirstName());
-        waiterResponseOfDay.setLastName(user.getLastName());
-        waiterResponseOfDay.setId(user.getId());
-        waiterResponseOfDay.setChequeResponses(cheques1);
-        int number = 0;
-        for (ChequeResponse c : cheques1) {
-            number += c.getGrandTotal();
+    public SimpleResponse saveCheque(Long userId, ChequeRequest chequeRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id:%s is not found...", userId)));
+        Cheque cheque = new Cheque();
+        List<Cheque> cheques = new ArrayList<>();
+        cheques.add(cheque);
+        List<MenuItem> items = new ArrayList<>();
+        for (Long l : chequeRequest.getMenuItemNames()) {
+            MenuItem menuItem = menuItemRepository.findById(l)
+                    .orElseThrow(() -> new NotFoundException(String.format("Item with id:%s is not found...", l)));
+            menuItem.setChequeList(cheques);
+            items.add(menuItem);
         }
-        waiterResponseOfDay.setAllDayChequePrice(number);
-        return waiterResponseOfDay;
-    }
+        int totalPrice = 0;
+        for (MenuItem m : items) {
+            totalPrice += m.getPrice();
+        }
 
-    @Override
-    public ChequeResponse update(Long id, ChequeRequest request) {
-        Cheque cheque = chequeRepository.findById(id).orElseThrow(() ->
-                new NotFoundException(String.format("Cheque with id :%s already exists", id)));
-        User user = userRepository.findById(request.getWaiterId()).orElseThrow(() ->
-                new NotFoundException(String.format("Cheque with id :%s already exists", id)));
-        List<MenuItemResponse> menuItemResponses = new ArrayList<>();
-        List<MenuItem> menuItemList = new ArrayList<>();
-        for (String s : request.getMenuItemNames()) {
-            MenuItem byName = menuItemRepository.findByName(s);
-            MenuItemResponse byNameResponse = menuItemRepository.findByNameResponse(s);
-            menuItemResponses.add(byNameResponse);
-            cheque.setMenuItems(List.of(byName));
-        }
         cheque.setUser(user);
         cheque.setCreatedAt(LocalDate.now());
-        int num = 0;
-        int count = 0;
-        for (MenuItemResponse menuItem : menuItemResponses) {
-            num = num + menuItem.getPrice();
-            count++;
-        }
-        cheque.setPriceAverage(num / count);
-        cheque.setMenuItems(menuItemList);
-        int number = num / 100;
-        int totalPrice = num + (number * getRestaurant().getService());
-        cheque.setTotal(num);
-        cheque.setGrandTotal(totalPrice);
-        chequeRepository.save(cheque);
-        return new ChequeResponse(
-                cheque.getId(),
-                cheque.getUser().getFirstName().concat(" ").concat(cheque.getUser().getLastName()),
-                menuItemResponses,
-                num,
-                getRestaurant().getService(),
-                totalPrice,
-                cheque.getCreatedAt()
-        );
-
-    }
-
-
-    @Override
-    public List<ChequeResponse> getAll() {
-        return cheques(chequeRepository.findAll());
-    }
-
-    @Override
-    public RestaurantResponseOfDay totalPriceRestaurant(RestaurantRequestOfDay request) {
-        List<Cheque> cheques = chequeRepository.findAll().stream().filter(cheque -> cheque.getCreatedAt().equals(request.getDay())).toList();
-        List<ChequeResponse> cheques1 = cheques(cheques);
-        RestaurantResponseOfDay restaurantResponseOfDay = new RestaurantResponseOfDay();
-        restaurantResponseOfDay.setChequeResponses(cheques1);
-        restaurantResponseOfDay.setName(getRestaurant().getName());
-        restaurantResponseOfDay.setId(getRestaurant().getId());
-        int number = 0;
-        for (ChequeResponse c : cheques1) {
-            number += c.getGrandTotal();
-        }
-        restaurantResponseOfDay.setAllDayChequePrice(number);
-        return restaurantResponseOfDay;
-    }
-
-
-    @Override
-    public SimpleResponse delete(Long id) {
-        if (!stopListRepository.existsById(id)) {
-            throw new NotFoundException("Cheque with id : " + id + "is not found");
-        }
-        stopListRepository.deleteById(id);
-        return SimpleResponse
-                .builder()
+        cheque.setMenuItems(items);
+        cheque.setPriceAverage(totalPrice);
+        repository.save(cheque);
+        return SimpleResponse.builder()
                 .httpStatus(HttpStatus.OK)
-                .message(String.format("Cheque with id : %s is deleted!", id))
+                .message("Successfully saved")
                 .build();
     }
 
     @Override
-    public ChequeResponse getById(Long id) {
-        Cheque cheque = chequeRepository.findById(id).orElseThrow();
-        List<MenuItemResponse>menuItemResponseList = new ArrayList<>();
-        for (MenuItem menuItem : cheque.getMenuItems()) {
-            menuItemResponseList.add(
-                    new MenuItemResponse(
-                            menuItem.getId(),
-                            menuItem.getName(),
-                            menuItem.getImage(),
-                            menuItem.getPrice(),
-                            menuItem.getDescription(),
-                            menuItem.isVegetarian()
-                    )
-            );
+    public SimpleResponse updateCheque(Long id, ChequeRequest chequeRequest) {
+        Cheque cheque = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Cheque with id:%s is not present", id)));
+        List<MenuItem> items = new ArrayList<>();
+        for (Long l : chequeRequest.getMenuItemNames()) {
+            Optional<MenuItem> menuItem = menuItemRepository.findById(l);
+            MenuItem menuItem1 = new MenuItem();
+            menuItem1.setId(menuItem.get().getId());
+            menuItem1.setName(menuItem.get().getName());
+            menuItem1.setImage(menuItem.get().getImage());
+            menuItem1.setRestaurant(menuItem.get().getRestaurant());
+            menuItem1.setVegetarian(menuItem.get().isVegetarian());
+            menuItem1.setPrice(menuItem.get().getPrice());
+            items.add(menuItem1);
+
         }
-        return new ChequeResponse(
-                cheque.getId(),
-                cheque.getUser().getFirstName().concat(" ").concat(cheque.getUser().getLastName()),
-                menuItemResponseList,
-                cheque.getTotal(),
-                getRestaurant().getService(),
-                cheque.getGrandTotal(),
-                cheque.getCreatedAt()
-        );
+        int totalPrice = 0;
+        for (MenuItem m : items) {
+            totalPrice += m.getPrice();
+        }
+        cheque.setPriceAverage(totalPrice);
+        return SimpleResponse.builder()
+                .httpStatus(HttpStatus.OK)
+                .message("Successfully saved")
+                .build();
+    }
+
+
+    @Override
+    public ChequeTotalWaiterResponse chequeTotalByWaiter(Long waiterId, LocalDate date) {
+        int counterCheck = 0;
+        int totalPrice = 0;
+        User user = userRepository.findById(waiterId).orElseThrow();
+        if(user.getRole().equals(Role.WAITER)){
+            for (Cheque cheque : user.getChequeList()) {
+                if( cheque.getCreatedAt().isEqual(date)){
+                    int service = cheque.getGrandTotal()*user.getRestaurant().getService()/100;
+                    totalPrice += service + cheque.getGrandTotal();
+                    counterCheck++;
+                }
+            }
+        }
+        return ChequeTotalWaiterResponse.builder()
+                .waiterName(user.getFirstName()+" "+user.getLastName())
+                .counterCheck(counterCheck)
+                .date(date)
+                .totalPrice(totalPrice)
+                .build();
+    }
+
+    @Override
+    public SimpleResponse deleteCheque(Long id) {
+        if (repository.existsById(id)) {
+            repository.deleteById(id);
+            return SimpleResponse.builder()
+                    .httpStatus(HttpStatus.OK)
+                    .message("Successfully deleted")
+                    .build();
+        } else throw new NotFoundException(String.format("Cheque with id:%s is not present", id));
+    }
+
+    @Override
+    public AverageSumResponse getAverageSum(LocalDate date) {
+        int i = 0;
+        List<Cheque> cheques = new ArrayList<>();
+        List<User> all = userRepository.findAll();
+        for (int j = 0; j < all.size(); j++) {
+            cheques.addAll(all.get(j).getChequeList());
+        }
+        for (int k = 0; k < cheques.size(); k++) {
+            if (cheques.get(k).getCreatedAt().equals(date)) {
+                i += cheques.get(k).getPriceAverage();
+            }
+        }
+        return AverageSumResponse.builder()
+                .sum(i)
+                .build();
+    }
+
+    @Override
+    public AverageSumResponse getAverageSumOfWaiter(Long waiterId, LocalDate dateTime) {
+        User user = userRepository.findById(waiterId)
+                .orElseThrow(() -> new NotFoundException(String.format("Waiter with id:%s is not present", waiterId)));
+        int i = repository.averageSumOfWaiter(user.getId(), dateTime);
+        return AverageSumResponse.builder()
+                .sum(i)
+                .build();
     }
 }

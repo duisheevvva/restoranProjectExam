@@ -16,7 +16,7 @@ public class CategoryApi {
     private final CategoryService categoryService;
 
     @GetMapping
-//    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public PaginationResponseCategory getAllCategories(int pageSize, int currentPage) {
         return categoryService.findAll(pageSize,currentPage);
     }
@@ -28,19 +28,19 @@ public class CategoryApi {
     }
 
     @GetMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public CategoryResponse findById(@PathVariable Long id) {
         return categoryService.findById(id);
     }
 
     @PutMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public SimpleResponse updateCategoryById(@PathVariable Long id, @RequestBody CategoryRequest categoryRequest) {
         return categoryService.update(id, categoryRequest);
     }
 
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     public SimpleResponse deleteCategoryById(@PathVariable Long id) {
         return categoryService.deleteById(id);
     }

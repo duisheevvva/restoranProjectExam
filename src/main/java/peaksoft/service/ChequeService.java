@@ -1,21 +1,24 @@
 package peaksoft.service;
 
 import peaksoft.dto.request.ChequeRequest;
-import peaksoft.dto.request.RestaurantRequestOfDay;
-import peaksoft.dto.request.WaiterRequest;
+import peaksoft.dto.response.AverageSumResponse;
 import peaksoft.dto.response.ChequeResponse;
-import peaksoft.dto.response.RestaurantResponseOfDay;
+import peaksoft.dto.response.ChequeTotalWaiterResponse;
 import peaksoft.dto.response.SimpleResponse;
-import peaksoft.dto.response.WaiterResponseOfDay;
+import peaksoft.dto.response.pagination.PaginationResponseCheque;
 
-import java.util.List;
+import java.time.LocalDate;
 
 public interface ChequeService {
-    ChequeResponse save(ChequeRequest request);
-    WaiterResponseOfDay totalPriceWalter(WaiterRequest request);
-    ChequeResponse update(Long id,ChequeRequest request);
-    List<ChequeResponse>getAll();
-    RestaurantResponseOfDay totalPriceRestaurant(RestaurantRequestOfDay request);
-    SimpleResponse delete(Long id);
-    ChequeResponse getById(Long id);
+    PaginationResponseCheque getAllCheques();
+    SimpleResponse saveCheque(Long userId, ChequeRequest chequeRequest);
+    SimpleResponse updateCheque(Long id, ChequeRequest chequeRequest);
+//    ChequeResponse getChequeById(Long id);
+
+    ChequeTotalWaiterResponse chequeTotalByWaiter(Long waiterId, LocalDate date);
+
+    SimpleResponse deleteCheque(Long id);
+    AverageSumResponse getAverageSum(LocalDate date);
+    AverageSumResponse getAverageSumOfWaiter(Long waiterId, LocalDate dateTime);
+
 }

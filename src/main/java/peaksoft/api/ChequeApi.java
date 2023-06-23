@@ -4,61 +4,54 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import peaksoft.dto.request.ChequeRequest;
-import peaksoft.dto.request.RestaurantRequestOfDay;
-import peaksoft.dto.request.WaiterRequest;
-import peaksoft.dto.response.ChequeResponse;
-import peaksoft.dto.response.RestaurantResponseOfDay;
+import peaksoft.dto.response.AverageSumResponse;
+import peaksoft.dto.response.ChequeTotalWaiterResponse;
 import peaksoft.dto.response.SimpleResponse;
-import peaksoft.dto.response.WaiterResponseOfDay;
 import peaksoft.service.ChequeService;
 
+import java.time.LocalDate;
 
-import java.util.List;
 
 
 @RestController
 @RequestMapping("/cheques")
 @RequiredArgsConstructor
 public class ChequeApi {
-    private final ChequeService chequeService;
-    @PostMapping
+    private final ChequeService service;
+
     @PreAuthorize("hasAnyAuthority('ADMIN','WAITER')")
-    public ChequeResponse save(@RequestBody ChequeRequest request){
-        return chequeService.save(request);
-    }
-    @PatchMapping("/totalWaiter")
-    @PreAuthorize("hasAnyAuthority('ADMIN','WAITER')")
-    public WaiterResponseOfDay totalWaiter(@RequestBody WaiterRequest request){
-        return chequeService.totalPriceWalter(request);
+    @PostMapping("/save")
+    public SimpleResponse saveCheque(@RequestParam Long userId, @RequestBody ChequeRequest chequeRequest){
+        return service.saveCheque(userId, chequeRequest);
     }
 
-    @GetMapping ("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN','WAITER','CHEF')")
-    public ChequeResponse getById(@PathVariable Long id){
-        return chequeService.getById(id);
-    }
-    @GetMapping("/totalRestaurant")
-    @PreAuthorize("hasAnyAuthority('ADMIN','WAITER')")
-    public RestaurantResponseOfDay totalRestor(@RequestBody RestaurantRequestOfDay request){
-        return chequeService.totalPriceRestaurant(request);
-    }
-
-    @GetMapping()
-    @PreAuthorize("hasAnyAuthority('ADMIN','CHEF','WAITER')")
-    public List<ChequeResponse>getAll(){
-        return chequeService.getAll();
-    }
-
-    @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ADMIN')")
-    public ChequeResponse update(@PathVariable Long id,@RequestBody ChequeRequest request){
-        return chequeService.update(id, request);
+    @PutMapping("/update/{id}")
+    public SimpleResponse updateCheque(@PathVariable Long id,@RequestBody ChequeRequest chequeRequest){
+        return service.updateCheque(id, chequeRequest);
     }
 
+    @PreAuthorize("hasAnyAuthority('ADMIN','WAITER')")
+    @GetMapping("/getById/{id}")
+    public ChequeTotalWaiterResponse waiterCheck(@RequestParam Long waiterId, @RequestParam LocalDate date){
+        return service.chequeTotalByWaiter(waiterId,date);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasAnyRole('ADMIN')")
-    public SimpleResponse deleteCategoryById(@PathVariable Long id) {
-        return chequeService.delete(id);
+    public SimpleResponse deleteById(@PathVariable Long id){
+        return service.deleteCheque(id);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/averageSum")
+    public AverageSumResponse getAverageSum(@RequestParam LocalDate date){
+        return  service.getAverageSum(date);
+    }
+
+    @PreAuthorize("hasAuthority('WAITER')")
+    @GetMapping("/averageSumOfWaiter")
+    public AverageSumResponse getAverageSumOfWaiter(@RequestParam Long id, @RequestParam LocalDate dateTime){
+        return service.getAverageSumOfWaiter(id, dateTime);
     }
 }
-

@@ -19,9 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "u.email,u.password,u.phoneNumber,u.role,u.experience ) from User u where u.id =:id")
     Optional<UserResponse> getUserById(Long id);
 
-    @Query("select  new  peaksoft.dto.response.UserResponse(u.id,u.firstName,u.lastName ,u.dateOfBirth," +
-            "u.email,u.password,u.phoneNumber,u.role,u.experience ) from User u")
-    Page<UserResponse> findAllUsers(Pageable pageable);
+    @Query("select new peaksoft.dto.response.UserResponse(u.id,u.firstName,u.lastName,u.dateOfBirth,u.email,u.password,u.phoneNumber,u.role,u.experience) from User u")
+    Page<UserResponse> getAllUsers(Pageable pageable);
 
     Boolean existsByPhoneNumber(String phoneNumber);
 }
